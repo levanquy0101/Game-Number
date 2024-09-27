@@ -30,29 +30,30 @@ function HomePage(props) {
     };
 
     const handleClickButton = () => {
-        setTime(0)
-        setIsPlaying(true);
-        setIsWin(false);
-        setIsLost(false);
-        const numbers = Array.from({ length: points }, (_, index) => index + 1);
-        setNumbers(numbers);
-
-        // Tạo vị trí ngẫu nhiên cho mỗi số
-        const newPositions = {};
-        numbers.forEach((num) => {
-            newPositions[num] = {
-                top: `${Math.floor(Math.random() * 90)}%`,
-                left: `${Math.floor(Math.random() * 90)}%`,
-            };
-        });
-        setPositions(newPositions);
+        if(points > 0 && points <= 10000){
+            setTime(0)
+            setIsPlaying(true);
+            setIsWin(false);
+            setIsLost(false);
+            const numbers = Array.from({ length: points }, (_, index) => index + 1);
+            setNumbers(numbers);
+    
+            // Tạo vị trí ngẫu nhiên cho mỗi số
+            const newPositions = {};
+            numbers.forEach((num) => {
+                newPositions[num] = {
+                    top: `${Math.floor(Math.random() * 90)}%`,
+                    left: `${Math.floor(Math.random() * 90)}%`,
+                };
+            });
+            setPositions(newPositions);
+        }
     };
 
     const handleClickPoint = (num) => {
         if (!isLost && num === numbers[0]) {
+
             const result = numbers.filter(item => item !== num);
-            console.log(result)
-            console.log(result.length)
             if (result.length === 0) {
                 setIsWin(true);
                 setIsPlaying(false)
@@ -86,11 +87,12 @@ function HomePage(props) {
                 <button className="max-w-16" onClick={handleClickButton}>
                     {isPlaying || isLost || isWin ? "Restart" : "Play"}
                 </button>
-                <div className="w-full p-2 border border-solid min-h-[400px] relative bg-gray-50">
+                <small className="text-red-400">{(points === 0 || points > 10000) && isPlaying ? "Please choose a large number 0 and less than 10000":""}</small>
+                <div className="w-full p-2 border border-solid min-h-[400px] relative">
                     {numbers.map((num) => (
                         <button
                             key={num}
-                            className="absolute list-none bg-blue-200 p-2 min-w-10 rounded-full aspect-square"
+                            className="absolute list-none p-2 min-w-10 rounded-full aspect-square"
                             style={{
                                 position: "absolute",
                                 top: positions[num]?.top,
