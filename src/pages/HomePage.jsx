@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function HomePage(props) {
     const [points, setPoints] = useState(0);
@@ -9,12 +9,28 @@ function HomePage(props) {
     const [isLost, setIsLost] = useState(false);
     const [positions, setPositions] = useState({}); // Thay đổi từ null thành một đối tượng
 
+    // Hàm để đếm thời gian
+    useEffect(() => {
+        let timer;
+        if (isPlaying) {
+            // Bắt đầu đếm thời gian
+            timer = setInterval(() => {
+                setTime((prevTime) => prevTime + 1);
+            }, 100);
+        }
+
+        return () => {
+            clearInterval(timer);
+        };
+    }, [isPlaying]);
+
     const handleChangePoints = (e) => {
         const value = parseInt(e.target.value, 10);
         setPoints(value);
     };
 
     const handleClickButton = () => {
+        setTime(0)
         setIsPlaying(true);
         setIsWin(false);
         setIsLost(false);
@@ -25,25 +41,27 @@ function HomePage(props) {
         const newPositions = {};
         numbers.forEach((num) => {
             newPositions[num] = {
-                top: Math.random() * 90 + "%",
-                left: Math.random() * 90 + "%",
+                top: `${Math.floor(Math.random() * 90)}%`,
+                left: `${Math.floor(Math.random() * 90)}%`,
             };
         });
         setPositions(newPositions);
     };
 
     const handleClickPoint = (num) => {
-        if( !isLost && num === numbers[0]) {
+        if (!isLost && num === numbers[0]) {
             const result = numbers.filter(item => item !== num);
             console.log(result)
             console.log(result.length)
-            if(result.length === 0){
+            if (result.length === 0) {
                 setIsWin(true);
+                setIsPlaying(false)
             }
             setNumbers(result)
-        }else{
+        } else {
             setIsWin(false);
             setIsLost(true);
+            setIsPlaying(false)
 
         }
         console.log(num)
@@ -52,8 +70,9 @@ function HomePage(props) {
     return (
         <div className="flex items-center justify-center w-screen h-screen">
             <div className="grid gap-4 border border-solid w-full max-w-2xl p-4 rounded">
-                <h2>{isWin ? "Bạn đã thắng" : ""}</h2>
-                <h2>{isLost ? "Bạn đã thua" : ""}</h2>
+                {isWin && <h2 className="text-green-500 uppercase">All Cleared</h2>}
+                {isLost && <h2 className="text-red-500 uppercase">Game over</h2>}
+                {!isWin && !isLost && <h2 className="text-black uppercase">Let's Play</h2>}
                 <div className="grid grid-cols-2 w-3/4">
                     <p className="">Points: </p>
                     <input
@@ -62,12 +81,12 @@ function HomePage(props) {
                         onChange={(e) => handleChangePoints(e)}
                     />
                     <p>Time: </p>
-                    <time>{time}s</time>
+                    <time>{(time / 10).toFixed(1)}s</time>
                 </div>
                 <button className="max-w-16" onClick={handleClickButton}>
-                    Play
+                    {isPlaying || isLost || isWin ? "Restart" : "Play"}
                 </button>
-                <div className="w-full border border-solid min-h-[400px] relative bg-gray-50">
+                <div className="w-full p-2 border border-solid min-h-[400px] relative bg-gray-50">
                     {numbers.map((num) => (
                         <button
                             key={num}
